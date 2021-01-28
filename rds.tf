@@ -1,11 +1,11 @@
-resource "aws_db_parameter_group" "main" {
-  name   = "postgresql"
-  family = "postgres9.6"
-}
+#resource "aws_db_parameter_group" "main" {
+#  name   = "postgresql"
+#  family = "postgres9.6"
+#}
 
 resource "aws_db_subnet_group" "main" {
   name       = "main"
-  subnet_ids = [aws_subnet.private.id, aws_subnet.public.id]
+  subnet_ids = aws_subnet.private[*].id
 }
 
 resource "aws_db_instance" "main" {
@@ -17,8 +17,11 @@ resource "aws_db_instance" "main" {
   name                 = var.rds_database_name
   username             = var.rds_username
   password             = var.rds_password
-  parameter_group_name = aws_db_parameter_group.main.name
+  #parameter_group_name = aws_db_parameter_group.main.name
   db_subnet_group_name = aws_db_subnet_group.main.name
   multi_az             = false
   skip_final_snapshot  = true
+
+  vpc_security_group_ids = list(aws_security_group.postgres.id)
+  publicly_accessible = true
 }
