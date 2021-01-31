@@ -5,12 +5,12 @@
 
 resource "aws_db_subnet_group" "main" {
   name       = "main"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = aws_subnet.public[*].id
 }
 
 resource "aws_db_instance" "main" {
   allocated_storage    = var.rds_disk_size
-  storage_type         = "gp2"
+  storage_type         = var.rds_storage_type
   engine               = var.rds_engine
   engine_version       = var.rds_engine_version
   instance_class       = var.rds_instance_class
