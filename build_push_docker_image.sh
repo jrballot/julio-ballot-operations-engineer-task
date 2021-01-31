@@ -9,3 +9,4 @@ docker tag operations-task-image $ECRREPO:latest
 aws ecr get-login-password  > docker-pass
 docker login -u AWS $ECRREPO --password-stdin < docker-pass
 docker push $ECRREPO:latest
+rm docker-pass
