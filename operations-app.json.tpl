@@ -1,16 +1,16 @@
 [
   {
-    "name": "operations-task-app",
+    "name": "${app_name}",
     "image": "${aws_ecr_repository}:${tag}",
     "essential": true,
     "portMappings": [
       {
-        "containerPort": 3000,
-        "hostPort": 3000,
+        "containerPort": ${app_port},
+        "hostPort": ${app_port},
         "protocol": "tcp"
       }
     ],
-    "cpu": 256,
-    "memory": 512
+    "cpu": ${app_cpu},
+    "memory": ${app_memory}
   }
 ]
