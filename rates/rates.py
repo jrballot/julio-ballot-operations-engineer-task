@@ -11,8 +11,9 @@ import config
 def get_db_conn(db_config):
     """ Create a database connection. """
     return psycopg2.connect(
-        "dbname='{}' user='{}' host='{}'".format(
+        "dbname='{}' user='{}' password={} host='{}' ".format(
             db_config["name"],
+            db_config["user"],
             db_config["user"],
             db_config["host"]
         )
@@ -26,7 +27,7 @@ def create_app():
     # Make JSON output pretty by default
     app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 
-    #conn = get_db_conn(config.DB)
+    conn = get_db_conn(config.DB)
 
     def get_cursor():
         """Get database dict cursor."""
