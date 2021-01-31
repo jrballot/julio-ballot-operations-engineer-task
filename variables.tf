@@ -31,6 +31,41 @@ variable "private_subnets" {
   description = "AWS EKS private networks"
 }
 
+##
+## AWS ECS Cluster
+##
+variable "ecs_cluster_name" {
+  default = "operations_task_ecs_cluster"
+  description = "AWS ECS cluster name"
+}
+variable "ecs_service_name" {
+  default = "operations_task"
+  description = "AWS ECS Service name"
+}
+
+##
+## AWS ECS Contiainers variables
+##
+variable "containers_port" {
+  type = number
+  default = 3000
+  description = "AWS ECS container's port"
+}
+variable "containers_name" {
+  type = string
+  default = "operations-task-app"
+  description = "Containers name to be used"
+}
+variable "containers_cpu" {
+  type = number
+  default = 256
+  description = "AWS ECS container's cpu"
+}
+variable "containers_memory" {
+  type = number
+  default = 512
+  description = "AWS ECS container's memory"
+}
 
 ##
 ## AWS RDS Variables
@@ -69,6 +104,11 @@ variable "rds_disk_size" {
   type = number
   default = 5
   description = "RDS Disk Size in GiB"
+}
+variable "rds_storage_type" {
+  type = string
+  default =  "gp2"
+  description = "RDS Storage Type"
 }
 
 ##
