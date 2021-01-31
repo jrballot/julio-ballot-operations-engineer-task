@@ -1,17 +1,25 @@
+##
+## AWS ECS Cluster: Defining cluster name
+##
 resource "aws_ecs_cluster" "main" {
-  name = "dev-cluster"
+  name = var.ecs_cluster_name
+  capacity_providers = ["FARGATE"]
+
+  
 }
 
-data "aws_subnet_ids" "main" {
-  vpc_id = aws_vpc.main.id
-}
-
-resource "aws_ecs_service" "dev" {
-  name = "development"
+##
+## AWS ECS Service definition
+##
+## Used to define how to run tasks on ECS cluster
+##
+resource "aws_ecs_service" "frontend" {
+  name = var.ecs_service_name
   cluster = aws_ecs_cluster.main.id
   task_definition =  aws_ecs_task_definition.service.arn
   desired_count = 1
   launch_type = "FARGATE"
+  force_new_deployment = "true"
 
   network_configuration {
     security_groups = [aws_security_group.ecs_tasks.id]
@@ -21,23 +29,18 @@ resource "aws_ecs_service" "dev" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name = "operations-task-app"
-    container_port = 3000
+    container_name =  var.containers_name
+    container_port = var.containers_port
   }
 
   depends_on = [aws_alb_listener.frontend,aws_iam_role_policy_attachment.ecs_task_execution_role]
 }
 
-
-data "template_file" "operations_task" {
-  template = file("./operations-app.json.tpl")
-  vars = {
-    aws_ecr_repository = aws_ecr_repository.main.repository_url
-    tag                = "latest"
-    app_port           = 3000
-  }
-}
-
+##
+## AWS ECS Task definition
+##
+## Used to define task with containers configuration and hw resources, e.g. CPU, MEMORY
+##
 resource "aws_ecs_task_definition" "service" {
   family                   = "operations-task-app"
   network_mode             = "awsvpc"
@@ -47,4 +50,20 @@ resource "aws_ecs_task_definition" "service" {
   memory                   = 512
   requires_compatibilities = ["FARGATE"]
   container_definitions    = data.template_file.operations_task.rendered
+}
+
+##
+## AWS ECS Task Template
+##
+
+data "template_file" "operations_task" {
+  template = file("./operations-app.json.tpl")
+  vars = {
+    aws_ecr_repository = aws_ecr_repository.main.repository_url
+    tag                = "latest"
+    app_port           = var.containers_port
+    app_name	       = var.containers_name
+    app_cpu            = var.containers_cpu
+    app_memory         = var.containers_memory
+  }
 }
