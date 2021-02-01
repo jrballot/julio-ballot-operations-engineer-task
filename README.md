@@ -200,8 +200,8 @@ The directory is basicaly composed of four subdirectories: bucket-state,db,rates
 The rest of the files are self-explanatory, each file has the name of the service and terraform resource it is managing. The only one really important is the **credentials** files, which is not versioned for obvious reasons and will be used to keep our AWS credentials. Create it with the aws credentials of root account or one with the desirable permissions for using the services mentioned in this document.
 
 '''
-export AWS_ACCESS_KEY_ID=AKIAJQ656T4E2JEU4UGQ
-export AWS_SECRET_ACCESS_KEY=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
+export AWS_ACCESS_KEY_ID=**********************
+export AWS_SECRET_ACCESS_KEY=***************************
 '''
 
 ### Running it
