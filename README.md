@@ -37,7 +37,7 @@ But even with Terraform I will have a problem, which is loading docker images an
 
 load_postgres_dump.sh:
 
-'''SHELL
+```SHELL
 #!/bin/bash
 
 DBHOST=$1
@@ -56,13 +56,13 @@ fi
 $PSQL  "postgresql://$DBUSERNAME:$DBPASSWORD@$DBHOST:$DBPORT" -c "drop database rates;"
 $PSQL  "postgresql://$DBUSERNAME:$DBPASSWORD@$DBHOST:$DBPORT" -c "create database rates;"
 $PSQL  "postgresql://$DBUSERNAME:$DBPASSWORD@$DBHOST:$DBPORT/rates" < db/rates.sql
-'''
+```
 
 This script will receive all data needed to load the dump file via Terraform variables. It will run a simple check in the local system for psql binary and if it exists the dump will be loaded in the right database.
 
 build_push_docker_images.sh:
 
-'''SHELL
+```SHELL
 #!/bin/bash
 
 ECRREPO=$1
@@ -75,11 +75,11 @@ aws ecr get-login-password  > docker-pass
 docker login -u AWS $ECRREPO --password-stdin < docker-pass
 docker push $ECRREPO:latest
 rm docker-pass
-'''
+```
 
 For loading docker image to the ECR service, I used a simple shell script to build, tag, logging to the service and push the image to the repository created by Terraform. One thing about the build processes was the use of **multi stage build** on Dockerfile.
 
-'''
+```
 FROM python:3.6-alpine AS base
 
 FROM base AS builder
@@ -95,7 +95,7 @@ WORKDIR /rates
 ADD . /rates
 RUN apk --no-cache add libpq
 CMD ["gunicorn","-b",":3000","wsgi"]
-'''
+```
 
 In this case I am using a temporary image to install all the dependencies, libs and pip packages needed by the rates application. The second build is the final one which will create the image, but only copying the binaries from the temporary image, which let me it a very small docker image.
 
@@ -105,14 +105,14 @@ To run this project some prerequisites needs to be solved. First you will need t
 
 **Installing AWS Cli**
 
-'''
+```
 ~$ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 ~$ unzip awscliv2.zip
 ~$ sudo ./aws/install
-'''
+```
 
 **Installing Docker**
-'''
+```
 $ sudo apt-get update
 
 $ sudo apt-get install \
@@ -127,37 +127,37 @@ $ sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/debian \
    $(lsb_release -cs) \
    stable"
-'''
+```
 
 Do not forget about adding your user to the Docker group:
 
-'''
+```
 ~$ sudo usermod -aG docker <your_user>
-'''
+```
 
 And check if it's running:
 
-'''
+```
 ~$ docker --version
-'''
+```
 
 **Installing PostgreSQL Client**
 
-'''
+```
 ~$ sudo apt install -y postgresql
-'''
+```
 
 **Installing Terraform**
 
-'''
+```
 $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 $ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 $ sudo apt-get update && sudo apt-get install terraform
-'''
+```
 
 Now that we have all that is needed to run this project lets understand its organization:
 
-'''
+```
 .
 ├── bucket-state
 │   ├── bucket-and-lock.tf
@@ -193,7 +193,7 @@ Now that we have all that is needed to run this project lets understand its orga
 ├── variables.tf
 └── vpc.tf
 
-'''
+```
 
 The directory is basicaly composed of four subdirectories: bucket-state,db,rates and image. Db and rates are the ones with the application provided, image is one used form to keep the images used in this documentation and the last one bucket-state is a terraform project to keep the tfstate of our project. So the bucket-state will create an S3 and DynamoDB services on AWS so that our main project could version its tfstate inside it and use it in the backend definicon on main.tf file. In this way we can work with team, having the tfstate and lock shared in one place, and if needed we could also use a terraform destroy without the  the limitations or risk of deleting the S3 keeping the state.
 
@@ -208,19 +208,19 @@ export AWS_SECRET_ACCESS_KEY=FW5eFsoJPtBvF8uxQ/OQIDbTVurF9/cV2B5zpp3x
 
 To run this project start by first run the terraform init and apply inside bucket-state direcotory:
 
-'''
+```
 cd bucket-state
 terraform init
 terraform apply
-'''
+```
 
 When it finish creating the S3 and DynamoDB move one directory bellow and run terraform init and terraform apply again.
 
-'''
+```
 cd ..
 terraform init
 terraform apply
-'''
+```
 
 If everything runs nicely the output will show you the ALB DNS name that will be used for accessing the application:
 
